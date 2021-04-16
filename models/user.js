@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
+const friendRequestSchema = new Schema({
+	sentBy: { type: Schema.Types.ObjectId, ref: 'User', required: true},
+	sentTo: { type: Schema.Types.ObjectId, ref: 'User', required: true}
+});
+
 const userSchema = new Schema({
 	username: { type: String, required: true, index: true },
 	password: { type: String, required: true},
@@ -14,11 +19,6 @@ const userSchema = new Schema({
 	friendRequests: [ friendRequestSchema ],
 	facebookId: String
 
-});
-
-const friendRequestSchema = new Schema({
-	sentBy: { type: Schema.Types.ObjectId, ref: 'User', required: true},
-	sentTo: { type: Schema.Types.ObjectId, ref: 'User', required: true}
 });
 
 userSchema

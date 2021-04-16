@@ -16,7 +16,9 @@ const LocalStrategy = require('passport-local').Strategy;
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const registerRouter = require('./routes/register')
+const registerRouter = require('./routes/register');
+const loginRouter = require('./routes/login');
+const groupsRouter = require('./routes/groups');
 
 const app = express();
 
@@ -78,15 +80,25 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(function(req, res, next) {
-	res.locals.currentUser = req.user;
+
+	if(req.user) {res.locals.currentUser = req.user }
+	else { 
+		res.redirect('/');
+	}
 	next();
 });
 
 
 app.use('/', indexRouter);
-// app.use('/register', registerRouter);
-// app.use('login', loginRouter);
+app.use('/register', registerRouter);
+app.use('login', loginRouter);
 app.use('/users', usersRouter);
+app.use('/groups', groupsRouter);
+
+app.get('/logout', (req, res) => {
+	req.logout();
+	res.redirect('/');
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
