@@ -1,4 +1,44 @@
-exports.book_create_post = [
+const { body, validationResult } = require('express-validator');
+const async = require('async');
+const Group = require('../models/group');
+const User = require('../models/user');
+const Post = require('../models/post');
+
+
+exports.group_create_get = function(req, res, next) {
+
+};
+
+exports.group_create_post = function(req, res, next) {
+
+};
+
+exports.group_update_get = function(req, res, next) {
+
+};
+
+exports.group_update_post = function(req, res, next) {
+
+};
+
+exports.group_delete_get = function(req, res, next) {
+
+};
+
+exports.group_delete_post = function(req, res, next) {
+
+};
+
+exports.group_page = function(req, res, next) {
+
+};
+
+exports.group_list = function(req, res, next) {
+
+};
+
+
+/* exports.book_create_post = [
     // Convert the genre to an array.
     (req, res, next) => {
         if(!(req.body.genre instanceof Array)){
@@ -66,3 +106,4 @@ exports.book_create_post = [
         }
     }
 ];
+ */

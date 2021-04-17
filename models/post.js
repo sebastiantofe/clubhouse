@@ -1,20 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { format } = require('date-fns');
-
-const commentSchema= new Schema({
-	author: { type: Schema.Types.ObjectId, ref: 'User', required: true},
-	content: { type: String, required: true},
-	comments: [ commentSchema ],
-	likes: { type: Number, min: 0, default: 0 },
-	likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-	timestamp: { type: Date, default: Date.now }
-});
+const Populate = require('../util/autopopulate');
 
 const postSchema= new Schema({
 	author: { type: Schema.Types.ObjectId, ref: 'User', required: true},
 	content: { type: String, required: true},
-	comments: [ commentSchema ],
+	comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
 	likes: { type: Number, min: 0, default: 0 },
 	likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 	timestamp: { type: Date, default: Date.now},
@@ -33,5 +25,11 @@ postSchema
 .get(function() {
 	return '/posts/' + this._id
 });
+
+// Always populate the author field
+postSchema
+.pre('findOne', Populate('author'))
+.pre('find', Populate('author'));
+
 
 module.exports = mongoose.model('Post', postSchema)

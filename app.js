@@ -81,17 +81,24 @@ app.use(passport.session());
 
 app.use(function(req, res, next) {
 
-	if(req.user) {res.locals.currentUser = req.user }
-	else { 
-		res.redirect('/');
+	if(req.user) {
+		res.locals.currentUser = req.user
+		next();
 	}
-	next();
+
 });
 
 
 app.use('/', indexRouter);
 app.use('/register', registerRouter);
 app.use('login', loginRouter);
+// Restrict access to unauthorized users
+app.use(function(req, res, next) {
+	if(!req.user) {
+		res.redirect('/');
+	}
+});
+
 app.use('/users', usersRouter);
 app.use('/groups', groupsRouter);
 
