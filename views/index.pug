@@ -1,7 +1,40 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-
-  
+  if !currentUser
+    div.signup
+      div.signup-connect
+        h1 Create your account
+        a.btn.btn-social.btn-facebook(href='#')
+          i.fab.fa-facebook-f
+          |  Sign in with Facebook
+        a.btn.btn-social.btn-twitter(href='#')
+          i.fab.fa-twitter
+          |  Sign in with Twitter
+        a.btn.btn-social.btn-google(href='#')
+          i.fab.fa-google
+          |  Sign in with Google
+        a.btn.btn-social.btn-linkedin(href='#')
+          i.fab.fa-linkedin-in
+          |  Sign in with Linkedin      
+      div.signup-classic
+        h2 Or use the classical way
+        form.form(method='POST' action='/register')
+          fieldset.username
+            input(name='username' placeholder='Username' type='text' required='')
+          fieldset.username
+            input(name='fname' placeholder='First name' type='text' required='')
+          fieldset.username
+            input(name='lname' placeholder='Last name' type='text' required='')
+          fieldset.email
+            input(name='email' placeholder='Email' type='email' pattern='.+\@..+' required='')
+          fieldset.password
+            input(name='password' type='password' placeholder='Password')
+          button.btn(type='submit') SIGN UP
+    div(style="margin-top:700px")
+      form.form(method='POST' action='/login')
+          fieldset.username
+            input(name='username' placeholder='Username' type='text' required='')
+          fieldset.password
+            input(name='password' type='password' placeholder='Password')
+          button.btn(type='submit') LOG IN

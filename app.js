@@ -7,7 +7,8 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const compression = require('compression');
 const helmet = require('helmet');
-
+const cors = require('cors');
+const User = require('./models/user');
 const session = require('express-session');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
@@ -25,7 +26,7 @@ const app = express();
 const mongoDB = process.env.MONGODB_URI || process.env.MONGODB_DEV;
 
 
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true });
 
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
@@ -40,7 +41,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression()); // Compress all responses
-app.use(helmet());
+app.use(
+	helmet.contentSecurityPolicy({
+		directives: {
+		  "default-src": helmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
+		  "script-src": ["'self'", "https://code.jquery.com", "https://stackpath.bootstrapcdn.com", "https://kit.fontawesome.com/c0f095a9dc.js"],
+		  "base-uri": [ "'self'" ]
+		},
+	})
+);
+app.use(cors());
 
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
 passport.use(
@@ -83,16 +93,19 @@ app.use(function(req, res, next) {
 
 	if(req.user) {
 		res.locals.currentUser = req.user
-		next();
 	}
-
+	next();
 });
 
 
 app.use('/', indexRouter);
 app.use('/register', registerRouter);
-app.use('login', loginRouter);
-// Restrict access to unauthorized users
+app.use('/login', loginRouter);
+app.get('/logout', (req, res) => {
+	req.logout();
+	res.redirect('/');
+});
+// Restrict access to unauthenticated users
 app.use(function(req, res, next) {
 	if(!req.user) {
 		res.redirect('/');
@@ -102,10 +115,6 @@ app.use(function(req, res, next) {
 app.use('/users', usersRouter);
 app.use('/groups', groupsRouter);
 
-app.get('/logout', (req, res) => {
-	req.logout();
-	res.redirect('/');
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

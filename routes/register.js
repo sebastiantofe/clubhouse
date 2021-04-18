@@ -15,6 +15,9 @@ router.post("/", (req, res, next) => {
 		const user = new User({
 			username: req.body.username,
 			password: hashedPassword,
+			fname: req.body.fname,
+			lname: req.body.lname,
+			email: req.body.email
 		}).save((err) => {
 			if (err) {
 				return next(err);
