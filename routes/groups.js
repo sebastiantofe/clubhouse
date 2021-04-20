@@ -16,7 +16,7 @@ router.post('/create', groupController.group_create_post);
 // POST request for creating new post in group page
 router.post('/:groupId/posts/create', postController.post_create);
 
-// GET specific post from user
+// GET specific post from group
 router.get('/:groupId/posts/:postId', postController.get_post_detail)
 
 

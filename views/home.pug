@@ -7,7 +7,7 @@ block content
   div.container
     form.form(method='POST' action=`/users/${currentUser._id}/posts/create`)
       div.form-group
-        textarea.form-control.status-box(rows="4" placeholder=`What's on your mind ${currentUser.fname}`)
+        textarea.form-control.status-box( name="content" rows="4" placeholder=`What's on your mind ${currentUser.fname}`)
       button.btn(type='submit') Post
     
   //- <div class="container">
