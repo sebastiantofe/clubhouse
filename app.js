@@ -13,7 +13,7 @@ const session = require('express-session');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const LocalStrategy = require('passport-local').Strategy;
-
+const flash = require('connect-flash');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -41,12 +41,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression()); // Compress all responses
+app.use(flash());
 app.use(
 	helmet.contentSecurityPolicy({
 		directives: {
 		  "default-src": helmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
-		  "script-src": ["'self'", "https://code.jquery.com", "https://stackpath.bootstrapcdn.com", "https://kit.fontawesome.com/c0f095a9dc.js"],
-		  "base-uri": [ "'self'" ]
+		  "script-src": ["'self'", "https://code.jquery.com/", "https://stackpath.bootstrapcdn.com/", "https://kit.fontawesome.com/c0f095a9dc.js"]
 		},
 	})
 );
@@ -92,11 +92,19 @@ app.use(passport.session());
 app.use(function(req, res, next) {
 
 	if(req.user) {
-		res.locals.currentUser = req.user
+		app.locals.currentUser = req.user
+	} else {
+		app.locals.currentUser = null;
 	}
 	next();
+	
 });
 
+app.use((req, res, next) => {
+	res.locals.messageSuccess = req.flash('messageSuccess')
+	res.locals.messageFailure = req.flash('messageFailure')
+	next();
+});
 
 app.use('/', indexRouter);
 app.use('/register', registerRouter);

@@ -1,3 +1,19 @@
+const { body, validationResult } = require('express-validator');
+const async = require('async');
+const Group = require('../models/group');
+const User = require('../models/user');
+const Post = require('../models/post');
+
+
+exports.users_list = function(req, res, next) {
+
+};
+
+exports.user_profile = function(req, res, next) {
+
+};
+
+
 exports.book_create_post = [
     // Convert the genre to an array.
     (req, res, next) => {

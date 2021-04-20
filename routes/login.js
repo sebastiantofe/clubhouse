@@ -6,7 +6,12 @@ const async = require('async');
 
 
 /* POST request for login */
-router.post('/', passport.authenticate("local", {
+router.post('/', (req, res, next) => {
+    let test= req.get('host');
+    console.log(req.get('Referrer'));
+    console.log(req.originalUrl);
+    next();
+}, passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/",
 })

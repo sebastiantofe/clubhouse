@@ -1,4 +1,18 @@
 extends layout
 
 block content
+  h1 Hello
   h1 Welcome back #{ currentUser.fname }
+
+  div.container
+    form.form(method='POST' action=`/users/${currentUser._id}/posts/create`)
+      div.form-group
+        textarea.form-control.status-box(rows="4" placeholder=`What's on your mind ${currentUser.fname}`)
+      button.btn(type='submit') Post
+    
+  //- <div class="container">
+  //-     <form>
+  //-       <div class="form-group">
+  //-         <textarea class="form-control status-box" rows="2" placeholder="What's on your mind?"></textarea>
+  //-       </div>
+  //-     </form>
