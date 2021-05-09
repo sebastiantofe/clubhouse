@@ -24,7 +24,7 @@ const postSchema= new Schema({
 	timestamp: { type: Date, default: Date.now},
 });
 
-//virtual for post's URL
+//virtual for post's formatted time
 postSchema
 .virtual('formatted_time')
 .get(function() {

@@ -9,22 +9,26 @@ const async = require('async');
 router.post("/", (req, res, next) => {
 
 	// encrypt password
-	bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
+	bcrypt.genSalt(10, function (err, salt) {
 		if(err) { return next(err)};
-		//Successful, create new user and save it.
-		const user = new User({
-			username: req.body.username,
-			password: hashedPassword,
-			fname: req.body.fname,
-			lname: req.body.lname,
-			email: req.body.email
-		}).save((err) => {
-			if (err) {
-				return next(err);
-			}
-			res.redirect("/");
-		});
-	})
+		
+		bcrypt.hash(req.body.password, salt, (err, hashedPassword) => {
+			if(err) { return next(err)};
+			//Successful, create new user and save it.
+			const user = new User({
+				username: req.body.username,
+				password: hashedPassword,
+				fname: req.body.fname,
+				lname: req.body.lname,
+				email: req.body.email
+			}).save((err) => {
+				if (err) {
+					return next(err);
+				}
+				res.redirect("/");
+			});
+		})
+	});
 });
 
 module.exports = router;
