@@ -1,6 +1,11 @@
-# clubhouse
-Social network backend like Facebook. Friends system, posts, likes, comments, realtime chat and groups features
+# Clubhouse
+Social network backend like Facebook. 
 
+## Features
+- Friends system
+- Posts, likes, comments
+- Groups - public and private
+- Realtime chat
 
 ## Technologies and skills
 - Nodejs
