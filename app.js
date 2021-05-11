@@ -42,20 +42,11 @@ app.use(
 );
 app.use(cors());
 
-
+// Register and Login routes
 app.use('/auth', authRouter);
 
-/* // Restrict access to unauthenticated users
-app.use(function(req, res, next) {
-	if(!req.user) {
-		res.redirect('/');
-	}
-	else {
-		next();
-	}
-}); */
-
-app.use(passport.authenticate('jwt', {session: false}));
+// JWT Authorization for routes
+// app.use(passport.authenticate('jwt', {session: false}));
 
 app.get('/logout', (req, res) => {
 	req.logout();

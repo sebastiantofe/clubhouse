@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const postRouter = require('./posts');
 const groupController = require('../controllers/groupController');
-const postController = require('../controllers/postController');
-
 
 
 
@@ -13,11 +12,8 @@ router.get('/create', groupController.group_create_get);
 // POST request for creating group.
 router.post('/create', groupController.group_create_post);
 
-// POST request for creating new post in group page
-router.post('/:groupId/posts/create', postController.post_create);
-
-// GET specific post from group
-router.get('/:groupId/posts/:postId', postController.get_post_detail)
+//Use router for posts
+router.use('/:groupId/posts', postRouter);
 
 
 // GET request to delete group.

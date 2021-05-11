@@ -93,7 +93,7 @@ exports.post_create = [
 ];
 
 exports.get_post_detail = function(req, res, next) {
-
+	console.log(req.params.userId);
 	Post.findById(req.params.postId, function(err, post) {
 		if(err) { return next(err)};
 
