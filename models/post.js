@@ -20,7 +20,10 @@ const postSchema= new Schema({
 	content: { type: String, required: true},
 	comments: [{ type: Schema.Types.ObjectId, ref: 'Comment', autopopulate: true }],
 	likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-}, { timestamps: true });
+}, { timestamps: true,
+	toJSON: { virtuals: true } 
+	}
+);
 
 //virtual for post's formatted time
 postSchema
@@ -40,6 +43,13 @@ postSchema
 .virtual('url')
 .get(function() {
 	return '/posts/' + this._id
+});
+
+//virtual for number of likes
+postSchema
+.virtual('likes')
+.get(function() {
+	return this.likedBy.length
 });
 
 postSchema.plugin(require('mongoose-autopopulate'));

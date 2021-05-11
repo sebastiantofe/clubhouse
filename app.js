@@ -46,7 +46,7 @@ app.use(cors());
 app.use('/auth', authRouter);
 
 // JWT Authorization for routes
-// app.use(passport.authenticate('jwt', {session: false}));
+app.use(passport.authenticate('jwt', {session: false}));
 
 app.get('/logout', (req, res) => {
 	req.logout();

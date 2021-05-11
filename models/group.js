@@ -20,7 +20,10 @@ const groupSchema = new Schema({
 	members: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
 	posts: [ { type: Schema.Types.ObjectId, ref: 'Post'}],
 	roles: [{ type: roleSchema, default: [] }],
-}, { timestamps: true});
+}, { timestamps: true,
+	toJSON: { virtuals: true } 
+	}
+);
 
 //virtual for group's URL
 groupSchema
@@ -28,5 +31,6 @@ groupSchema
 .get(function() {
 	return '/posts/' + this._id
 });
+
 
 module.exports = mongoose.model('Group', groupSchema);

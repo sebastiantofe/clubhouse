@@ -18,12 +18,15 @@ const userSchema = new Schema({
 	friends: [ { type: Schema.Types.ObjectId, ref: 'User'} ],
 	friendRequests: [ friendRequestSchema ],
 	facebookId: String
-}, { timestamps:true});
+}, { timestamps: true,
+	toJSON: { virtuals: true } 
+	}
+);
 
 userSchema
 .virtual('fullName')
 .get( function() {
-	return fname + ' ' + lname
+	return this.fname + ' ' + this.lname
 });
 
 //virtual for user's URL

@@ -4,6 +4,7 @@ const async = require('async');
 const Group = require('../models/group');
 const User = require('../models/user');
 const Post = require('../models/post');
+const { compareSync } = require('bcryptjs');
 
 exports.post_create = [
 	body('content', 'Content must not be empty.').trim().isLength({ min: 1 }).escape(),
@@ -93,7 +94,6 @@ exports.post_create = [
 ];
 
 exports.get_post_detail = function(req, res, next) {
-	console.log(req.params.userId);
 	Post.findById(req.params.postId, function(err, post) {
 		if(err) { return next(err)};
 
@@ -107,5 +107,63 @@ exports.get_post_detail = function(req, res, next) {
         };
 		
 	})
+
+};
+
+exports.edit_post = function (req, res, next) {
+	
+	
+
+};
+
+exports.delete_post = function (req, res, next) {
+	
+	
+
+};
+
+exports.like_post = function (req, res, next) {
+
+	Post.findById(req.params.postId, function (err, post) {
+		if(err) { return next(err)};
+
+		//Check if user has already liked the post or not
+		if(!post.likedBy.includes(req.user._id.toString())) {
+
+			//Push current user id in likedBy array
+			post.likedBy.push(req.user._id)
+			post.save(function (err) {
+				if (err) { return next(err)};
+				res.json({
+					message: "liked"
+				});
+			});
+
+		} else {
+
+			//Pull current user id from likedBy array
+			post.likedBy = post.likedBy.filter(function(value) {
+				return value.toString() !== req.user._id.toString();
+			});
+
+			post.save(function (err) {
+				res.json({
+					message: "disliked"
+				});
+			});
+		}
+	});
+/* 
+	Post.findByIdAndUpdate(req.params.postId, {
+		$push: { 
+			likedBy: req.user._id,
+			}	
+	}, function (err, doc) {
+		if(err) { return next(err)};
+
+		res.json({
+			message: "Liked"
+		})
+	}); */
 
 };

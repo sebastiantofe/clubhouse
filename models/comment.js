@@ -7,8 +7,18 @@ const commentSchema= new Schema({
 	content: { type: String, required: true},
 	comments: [ { type: Schema.Types.ObjectId, ref: 'Comment',  autopopulate: true } ],
 	likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-}, { timestamps: true});
+}, { timestamps: true,
+	toJSON: { virtuals: true } 
+	}
+);
 
+
+//virtual for number of likes
+commentSchema
+.virtual('likes')
+.get(function() {
+	return this.likedBy.length
+});
 
 commentSchema.plugin(require('mongoose-autopopulate'));
 
