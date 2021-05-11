@@ -8,19 +8,19 @@ const roleSchema= new Schema({
 	users: [ { type: Schema.Types.ObjectId, ref: 'User' } ]
 });
 
+
+
 const groupSchema = new Schema({
 	name: { type: String, required: true, index: true },
-	password: String,
-	private: Boolean,
+	password: { type: String, select: false },
+	private: { type: Boolean, required: true },
 	picture: String,
 	owner: { type: String, required: true},
 	description: String,
-	likes: { type: Number, min: 0, default: 0 },
 	members: [ { type: Schema.Types.ObjectId, ref: 'User' } ],
 	posts: [ { type: Schema.Types.ObjectId, ref: 'Post'}],
 	roles: [{ type: roleSchema, default: [] }],
-	createdOn: { type: Date, default: Date.now },
-});
+}, { timestamps: true});
 
 //virtual for group's URL
 groupSchema

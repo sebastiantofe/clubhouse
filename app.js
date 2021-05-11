@@ -31,9 +31,9 @@ mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useC
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
 
-// view engine setup
+/* // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set('view engine', 'pug'); */
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -109,11 +109,8 @@ app.use((req, res, next) => {
 app.use('/', indexRouter);
 app.use('/register', registerRouter);
 app.use('/login', loginRouter);
-app.get('/logout', (req, res) => {
-	req.logout();
-	res.redirect('/');
-});
-// Restrict access to unauthenticated users
+
+/* // Restrict access to unauthenticated users
 app.use(function(req, res, next) {
 	if(!req.user) {
 		res.redirect('/');
@@ -121,6 +118,11 @@ app.use(function(req, res, next) {
 	else {
 		next();
 	}
+}); */
+
+app.get('/logout', (req, res) => {
+	req.logout();
+	res.redirect('/');
 });
 
 app.use('/users', usersRouter);

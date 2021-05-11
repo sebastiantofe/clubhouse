@@ -9,7 +9,7 @@ const friendRequestSchema = new Schema({
 
 const userSchema = new Schema({
 	username: { type: String, required: true, index: true },
-	password: { type: String, required: true},
+	password: { type: String, required: true,  select: false },
 	fname: { type: String, required: true },
 	lname: { type: String, required: true },
 	email: { type: String, required: true, match: /.+\@..+/},
@@ -18,8 +18,7 @@ const userSchema = new Schema({
 	friends: [ { type: Schema.Types.ObjectId, ref: 'User'} ],
 	friendRequests: [ friendRequestSchema ],
 	facebookId: String
-
-});
+}, { timestamps:true});
 
 userSchema
 .virtual('fullName')
@@ -31,7 +30,7 @@ userSchema
 userSchema
 .virtual('url')
 .get(function() {
-	return '/user/' + this._id
+	return '/' + this._id
 });
 
 module.exports = mongoose.model('User', userSchema);

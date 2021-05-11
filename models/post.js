@@ -19,16 +19,20 @@ const postSchema= new Schema({
 	  },
 	content: { type: String, required: true},
 	comments: [{ type: Schema.Types.ObjectId, ref: 'Comment', autopopulate: true }],
-	likes: { type: Number, min: 0, default: 0 },
 	likedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-	timestamp: { type: Date, default: Date.now},
-});
+}, { timestamps: true });
 
 //virtual for post's formatted time
 postSchema
-.virtual('formatted_time')
+.virtual('created_formatted')
 .get(function() {
-	return format( new Date(this.timestamp), "dd MMMM yyyy ' at ' HH:mm" )
+	return format( new Date(this.createdAt), "dd MMMM yyyy ' at ' HH:mm" )
+});
+
+postSchema
+.virtual('updated_formatted')
+.get(function() {
+	return format( new Date(this.updatedAt), "dd MMMM yyyy ' at ' HH:mm" )
 });
 
 //virtual for post's URL

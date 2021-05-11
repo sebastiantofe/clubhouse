@@ -14,6 +14,10 @@ exports.post_create = [
 		
 		const id = req.params.userId || req.params.groupId;
 		const onModel = req.params.userId ? 'User' : 'Group';
+
+		//Select model depending on location of post
+		const Model = req.params.userId ? User : Group;
+
 		/* 
 		let test = {
 			id: id,
@@ -25,7 +29,7 @@ exports.post_create = [
 		console.log(test); */
 
 		let post = new Post({
-			author: req.app.locals.currentUser._id,
+			author: req.user._id,
 			location: id,
 			onModel: onModel,
 			content: req.body.content
@@ -33,7 +37,10 @@ exports.post_create = [
 		
 		if (!errors.isEmpty()) {
 
-			res.redirect(req.get('referrer'));
+			res.json({
+				message: errors.array()
+			})
+			// res.redirect(req.get('referrer'));
 			return;
         }
         else {
@@ -42,7 +49,18 @@ exports.post_create = [
                 if (err) { return next(err); }
 
 				//successful - save post in User/Group posts array
-				if (onModel==='User') {
+				Model.findByIdAndUpdate(id, {
+					$push: { 
+						posts: {
+							$each:[post._id],
+							$position: 0
+						}
+					}
+				}, function (err, doc) {
+					if(err) { return next(err)};
+				});
+
+/* 				if (onModel==='User') {
 					User.findById(id, function (err, user) {
 						if(err) { return next(err)};
 					
@@ -62,14 +80,32 @@ exports.post_create = [
 							if(err) { return next(err)};
 						});
 					});
-				};
+				}; */
+
+				// Successful - return post
+				res.json(post);
+
                 //successful - redirect to referrer page.
-				res.redirect(req.get('referrer'));
+				// res.redirect(req.get('referrer'));
                 });
         };
     }
 ];
 
 exports.get_post_detail = function(req, res, next) {
+
+	Post.findById(req.params.postId, function(err, post) {
+		if(err) { return next(err)};
+
+		if(post === null) {
+            res.json({
+                message: 'Post not found'
+            });
+        } else {
+			//Send post 
+			res.json(post);
+        };
+		
+	})
 
 };
