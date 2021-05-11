@@ -3,7 +3,7 @@ const router = express.Router();
 const indexController = require("../controllers/indexController");
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
+router.get("/feed", function (req, res, next) {
 	if (req.user) {
 		// indexController.show_feed_get
 		res.render('home');

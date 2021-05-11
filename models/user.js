@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcryptjs');
 const { Schema } = mongoose;
 
 const friendRequestSchema = new Schema({
@@ -32,5 +32,14 @@ userSchema
 .get(function() {
 	return '/' + this._id
 });
+
+userSchema.methods.comparePassword = function (pass, cb) {
+    bcrypt.compare(pass, this.password, function (err, isMatch) {
+        if (err) {
+            return cb(err);
+        }
+        cb(null, isMatch);
+    });
+};
 
 module.exports = mongoose.model('User', userSchema);
