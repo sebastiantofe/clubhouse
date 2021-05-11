@@ -19,4 +19,4 @@ exports.show_feed_get = function(req, res, next) {
 
 		res.render('home', { posts: results.posts })
 	}); */
-}
+};

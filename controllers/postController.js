@@ -6,6 +6,8 @@ const User = require('../models/user');
 const Post = require('../models/post');
 const { compareSync } = require('bcryptjs');
 
+const like = require('../util/likeFeature').like;
+
 exports.post_create = [
 	body('content', 'Content must not be empty.').trim().isLength({ min: 1 }).escape(),
 	function(req, res, next) {
@@ -124,46 +126,5 @@ exports.delete_post = function (req, res, next) {
 
 exports.like_post = function (req, res, next) {
 
-	Post.findById(req.params.postId, function (err, post) {
-		if(err) { return next(err)};
-
-		//Check if user has already liked the post or not
-		if(!post.likedBy.includes(req.user._id.toString())) {
-
-			//Push current user id in likedBy array
-			post.likedBy.push(req.user._id)
-			post.save(function (err) {
-				if (err) { return next(err)};
-				res.json({
-					message: "liked"
-				});
-			});
-
-		} else {
-
-			//Pull current user id from likedBy array
-			post.likedBy = post.likedBy.filter(function(value) {
-				return value.toString() !== req.user._id.toString();
-			});
-
-			post.save(function (err) {
-				res.json({
-					message: "disliked"
-				});
-			});
-		}
-	});
-/* 
-	Post.findByIdAndUpdate(req.params.postId, {
-		$push: { 
-			likedBy: req.user._id,
-			}	
-	}, function (err, doc) {
-		if(err) { return next(err)};
-
-		res.json({
-			message: "Liked"
-		})
-	}); */
-
+	like(req, res, next, Post, req.params.postId);
 };

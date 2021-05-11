@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const postRouter = require('./posts');
+const postsRouter = require('./posts');
 
 /* GET users listing. */
 router.get('/', userController.users_list_get);
@@ -11,7 +11,7 @@ router.get('/:userId', userController.user_profile_get);
 
 
 //Use router for posts
-router.use('/:userId/posts', postRouter);
+router.use('/:userId/posts', postsRouter);
 
 
 module.exports = router;
