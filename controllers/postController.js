@@ -63,33 +63,8 @@ exports.post_create = [
 					if(err) { return next(err)};
 				});
 
-/* 				if (onModel==='User') {
-					User.findById(id, function (err, user) {
-						if(err) { return next(err)};
-					
-						user.posts.unshift(post._id);
-
-						user.save(function (err) {
-							if(err) { return next(err)};
-						});
-					});
-				} else {
-
-					Post.findById(id, function (err, group) {
-
-						group.posts.unshift(post._id);
-
-						post.save(function (err) {
-							if(err) { return next(err)};
-						});
-					});
-				}; */
-
 				// Successful - return post
 				res.json(post);
-
-                //successful - redirect to referrer page.
-				// res.redirect(req.get('referrer'));
                 });
         };
     }
@@ -120,11 +95,104 @@ exports.edit_post = function (req, res, next) {
 
 exports.delete_post = function (req, res, next) {
 	
+	function deletePost(Model, id) {
+
+
+		//Remove post id from User/Group posts array
+		Model.findByIdAndUpdate(id, {
+			$pull: {
+				posts: req.params.postId
+			}
+		}, function(err, doc) {
+			if(err) { return next(err)};
+
+			// Delete post
+			Post.findById(req.params.postId, function(err, post) {
+				if(err) { return next(err)};
+				res.json({ 
+					message: 'Post deleted'
+				})
+				post.remove();
+			});
+	
+		});
+
+	}
+
+	Post.findById(req.params.postId, function(err, post) {
+		
+		if (err) { return next(err)};
+
+			if(post===null) {
+				res.json({
+					message: 'Post not found'
+				})
+				return;
+			};
+
+		let authorized = false
+		const author = req.user.id === post.author.id ?? false;
+		let owner = false;
+		
+		const Model = post.onModel === 'User' ? User : Group;
+
+		if(post.onModel==='User'){
+			
+			// Check if the post is written in current user profile
+			owner = req.user.id === post.location.toString() ?? false;
+
+			authorized = owner || author;
+
+
+		} else {
+
+			let role;
+
+			Group.findById(req.params.groupId, function(err, group) {
+				
+				if (err) { return next(err)};
+
+				if(group===null) {
+					res.json({
+						message: 'Group not found'
+					})
+				};
+
+				// Check if current user is owner of group
+				owner = req.user.id === group.owner.toString() ?? false;
+
+				for(let i = 0; i < group.roles.length; i++) {
+					if(group.roles[i].users.includes(req.user.id)) {
+						
+						role = group.roles[i];
+						break;
+					}
+				};
+
+				role = role.actions.includes('delete_comment') ?? false;
+
+				authorized = author || owner || role
+
+			});	
+		};
+
+		if(authorized) {
+			deletePost(Model, post.location);	
+			return	
+		} else {
+			res.json({
+				message: 'Unauthorized. You can\'t delete this post'
+			})
+			return
+		}
+	
+	});
+	
 	
 
 };
 
 exports.like_post = function (req, res, next) {
-
+	
 	like(req, res, next, Post, req.params.postId);
 };

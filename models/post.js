@@ -5,7 +5,7 @@ const Comment = require('./comment');
 
 const postSchema= new Schema({
 	author: { type: Schema.Types.ObjectId, ref: 'User', required: true, autopopulate: true},
-	location: { 
+	location: {
 		type: Schema.Types.ObjectId,
 		required: true,
 		// Instead of a hardcoded model name in `ref`, `refPath` means Mongoose
@@ -54,7 +54,26 @@ postSchema
 
 postSchema.plugin(require('mongoose-autopopulate'));
 
+postSchema.pre('remove', async function(next) {
+	
+	if(!this.comments.length > 0) {
+		return next();
+	} else {
+		
+		for(let i = 0; i < this.comments.length; i++) {
+			
+			await Comment.findById(this.comments[i], async function(err, comment) {
+				if(err) { return next(err)};
+				
+				await comment.remove();
+			});
+		};
+		return next();
+	};
+});
 
 
 
-module.exports = mongoose.model('Post', postSchema)
+
+
+module.exports = mongoose.model('Post', postSchema);

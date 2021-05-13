@@ -4,7 +4,7 @@ const commentsRouter = require('./comments');
 const postController = require('../controllers/postController');
 
 // POST request for creating new post
-router.post('/create', postController.post_create);
+router.post('/', postController.post_create);
 
 // GET specific post
 router.get('/:postId', postController.get_post_detail);
@@ -19,6 +19,6 @@ router.delete('/:postId', postController.delete_post);
 router.put('/:postId/like', postController.like_post);
 
 
-router.use(':/postId/comments', commentsRouter);
+router.use('/:postId/comments', commentsRouter);
 
 module.exports = router;

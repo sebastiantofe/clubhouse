@@ -1,10 +1,12 @@
 
 module.exports.like = function(req, res, next, Model, id) {
+	
 	Model.findById(id, function (err, doc) {
 		if(err) { return next(err)};
 
+		//.id equals ._id.toString()
 		//Check if user has already liked the post/comment or not
-		if(!doc.likedBy.includes(req.user._id.toString())) {
+		if(!doc.likedBy.includes(req.user.id)) {
 
 			//Push current user id in likedBy array
 			doc.likedBy.push(req.user._id)
