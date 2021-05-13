@@ -20,6 +20,9 @@ exports.comment_create = [
 		//Select model depending on location of comment
 		const Model = req.params.commentId ? Comment : Post;
 
+		//Check if post is in group or user profile
+		const postLocation = req.params.userId ? 'User' : 'Group';
+
 		let comment = new Comment({
 			author: req.user._id,
 			post: req.params.postId,
@@ -33,22 +36,59 @@ exports.comment_create = [
 				error: errors.array()
 			})
         } else {
-            // Data from form is valid. Save comment.
-            comment.save(function (err) {
-                if (err) { return next(err)};
 
-				//successful - save comment in Post/Comment comments array
-				Model.findByIdAndUpdate(id, {
+			let same_profile = false;
+			let friends = false;
+			let groupMember = false;
+			if(postLocation==='User') {
+				
+				// Check if the post is in current user profile
+				same_profile = req.user.id === req.params.userId
+
+				// Check if the post is in a current user friend's profile
+				friends = req.user.friends.includes(req.params.userId)
+			} else {
+				Group.findById(req.params.groupId, function(err, group) {
+					if(err) { return next(err)};
+					if(group===null) {
+						res.json({
+							message: 'Group not found'
+						})
+						return
+					}
+
+					groupMember = group.members.includes(req.user.id);
+				});
+			};
+
+			const authorized = same_profile || friends || groupMember;
+			if(authorized) { 
+
+				// User is authorized. Save comment.
+				comment.save(function (err) {
+					if (err) { return next(err)};
+					
+					//successful - save comment in Post/Comment comments array
+					Model.findByIdAndUpdate(id, {
 					$push: { 
 						comments: comment._id
 					}
 				}, function (err, doc) {
 					if(err) { return next(err)};
 				});
-
+				
 				// Successful - return comment
 				res.json(comment);
-                });
+			});
+			
+			
+		} else {
+			res.json({
+					message: 'Unauthorized. You can\'t create this comment'
+				});
+				return;
+			}
+
         };
     }
 ];
