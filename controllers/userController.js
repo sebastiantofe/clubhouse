@@ -17,6 +17,7 @@ exports.users_list_get = function(req, res, next) {
 };
 
 exports.user_profile_get = function(req, res, next) {
+    
     User.findById(req.params.userId, function(err, user) {
         if(err) { return next(err)};
 

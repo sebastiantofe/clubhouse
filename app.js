@@ -71,8 +71,8 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500).json({
-	  message: err.message,
-	  error: res.locals.error
+	  error: res.locals.error,
+	  message: 'You are lost'
 	}
   );
 });

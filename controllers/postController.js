@@ -47,25 +47,59 @@ exports.post_create = [
 			return;
         }
         else {
-            // Data from form is valid. Save post.
-            post.save(function (err) {
-                if (err) { return next(err); }
-
-				//successful - save post in User/Group posts array
-				Model.findByIdAndUpdate(id, {
-					$push: { 
-						posts: {
-							$each:[post._id],
-							$position: 0
-						}
-					}
-				}, function (err, doc) {
+			let same_profile = false;
+			let friends = false;
+			let groupMember = false;
+			if(post.onModel==='User') {
+				// Check if user is creating a post in its own profile
+				same_profile = req.user.id === req.params.userId
+				//Check if user is creating a post in a friend's profile
+				friends = req.user.friends.includes(req.params.userId)
+			} else {
+				Group.findById(req.params.groupId, function(err, group) {
 					if(err) { return next(err)};
-				});
+					if(group===null) {
+						res.json({
+							message: 'Group not found'
+						})
+						return
+					}
 
-				// Successful - return post
-				res.json(post);
-                });
+					groupMember = group.members.includes(req.user.id);
+				})
+			};
+
+			const authorized = same_profile || friends || groupMember;
+			if(authorized) { 
+
+				// User is authorized. Save post.
+				post.save(function (err) {
+					if (err) { return next(err)};
+	
+					//successful - save post in User/Group posts array
+					Model.findByIdAndUpdate(id, {
+						$push: { 
+							posts: {
+								$each:[post._id],
+								$position: 0
+							}
+						}
+					}, function (err, doc) {
+						if(err) { return next(err)};
+					});
+	
+					// Successful - return post
+					res.json(post);
+
+				});
+				return;
+			} else {
+				res.json({
+					message: 'Unauthorized. You can\'t create this post'
+				});
+				return;
+			}
+			
         };
     }
 ];
@@ -131,7 +165,7 @@ exports.delete_post = function (req, res, next) {
 			};
 
 		let authorized = false
-		const author = req.user.id === post.author.id ?? false;
+		const author = req.user.id === post.author.id
 		let owner = false;
 		
 		const Model = post.onModel === 'User' ? User : Group;
@@ -139,7 +173,7 @@ exports.delete_post = function (req, res, next) {
 		if(post.onModel==='User'){
 			
 			// Check if the post is written in current user profile
-			owner = req.user.id === post.location.toString() ?? false;
+			owner = req.user.id === post.location.toString();
 
 			authorized = owner || author;
 
@@ -159,7 +193,7 @@ exports.delete_post = function (req, res, next) {
 				};
 
 				// Check if current user is owner of group
-				owner = req.user.id === group.owner.toString() ?? false;
+				owner = req.user.id === group.owner.toString()
 
 				for(let i = 0; i < group.roles.length; i++) {
 					if(group.roles[i].users.includes(req.user.id)) {
@@ -169,7 +203,7 @@ exports.delete_post = function (req, res, next) {
 					}
 				};
 
-				role = role.actions.includes('delete_comment') ?? false;
+				role = role.actions.includes('delete_comment');
 
 				authorized = author || owner || role
 

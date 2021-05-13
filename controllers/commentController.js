@@ -35,7 +35,8 @@ exports.comment_create = [
         } else {
             // Data from form is valid. Save comment.
             comment.save(function (err) {
-                if (err) { return next(err); }
+                if (err) { return next(err)};
+
 				//successful - save comment in Post/Comment comments array
 				Model.findByIdAndUpdate(id, {
 					$push: { 
@@ -100,7 +101,7 @@ exports.delete_comment = function (req, res, next) {
 
 		let authorized = false
 
-		const author = req.user.id === comment.author.id ?? false;
+		const author = req.user.id === comment.author.id
 		let owner = false;
 		
 		const Model = comment.onModel === 'Comment' ? Comment : Post;
@@ -117,7 +118,7 @@ exports.delete_comment = function (req, res, next) {
 			if(post.onModel==='User'){
 				
 				// Check if the post is written in current user profile
-				owner = req.user.id === post.location.toString() ?? false;
+				owner = req.user.id === post.location.toString();
 
 				authorized = owner || author;
 
@@ -137,7 +138,7 @@ exports.delete_comment = function (req, res, next) {
 					};
 
 					// Check if current user is owner of group
-					owner = req.user.id === group.owner.toString() ?? false;
+					owner = req.user.id === group.owner.toString();
 
 					for(let i = 0; i < group.roles.length; i++) {
 						if(group.roles[i].users.includes(req.user.id)) {
@@ -147,7 +148,7 @@ exports.delete_comment = function (req, res, next) {
 						}
 					};
 
-					role = role.actions.includes('delete_comment') ?? false;
+					role = role.actions.includes('delete_comment');
 
 					authorized = author || owner || role
 
@@ -155,7 +156,8 @@ exports.delete_comment = function (req, res, next) {
 			};
 
 			if(authorized) {
-				deleteComment(Model, comment.location);		
+				deleteComment(Model, comment.location);
+				return;
 			} else {
 				res.json({
 					message: 'Unauthorized. You can\'t delete this comment'
