@@ -7,10 +7,10 @@ const friendController = require('../controllers/friendController');
 router.get('/', friendController.is_friend_or_same, friendController.show_friends);
 
 // Post route for sending a friend request
-router.post('/', friendController.is_not_same_or_friend, friendController.add_friend);
+router.post('/', [friendController.is_not_same_or_friend, friendController.request_exists], friendController.add_friend);
 
 // Put route for accepting/rejecting a friend request
-router.put('/', friendController.handle_friend_request);
+router.put('/', friendController.request_missing, friendController.handle_friend_request);
 
 // Delete route for deleting a friend from current user's list of friends
 router.delete('/', friendController.delete_friend);

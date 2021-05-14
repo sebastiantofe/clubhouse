@@ -45,7 +45,7 @@ exports.login = function (req, res, next) {
 			}
 			// generate a signed son web token with the contents of user object and return it in the response
 			let opts = {
-				expiresIn: 60 * 60 * 12 // 12 hours
+				expiresIn: 60 * 60 * 48 // 48 hours
 			}
 			const token = jwt.sign( { id: user._id }, process.env.JWT_SECRET, opts);
 

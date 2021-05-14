@@ -1,7 +1,7 @@
 
 const User = require('../models/user');
 const mongoose = require('mongoose');
-
+const async = require('async');
 exports.is_friend_or_same = function(req, res, next) {
 	
 	// Check if current user is asking for its own friends list
@@ -20,6 +20,7 @@ exports.is_friend_or_same = function(req, res, next) {
 };
 
 exports.is_not_same_or_friend = function (req, res, next) {
+
 	// Check if current user is in its profile
 	const same = req.user.id === req.params.userId;
 
@@ -37,16 +38,24 @@ exports.is_not_same_or_friend = function (req, res, next) {
 		});
 		return;
 
-	} else if (req.user.friendRequests.length > 0) {
+	} else {
+		next();
+		return
+	} 
+};
+
+exports.request_exists = function (req, res, next) {
+	console.log('Add friend');
+	if (req.user.friendRequests.length > 0) {
 		for (let i = 0; i < req.user.friendRequests.length; i++) {
 			const sentRequest =
-				req.user.friendRequests[i].from.toString() === req.user.id &&
-				req.user.friendRequests[i].to.toString() === req.params.userId;
+			req.user.friendRequests[i].from.toString() === req.user.id &&
+			req.user.friendRequests[i].to.toString() === req.params.userId;
 			const receivedRequest =
 				req.user.friendRequests[i].from.toString() === req.params.userId &&
 				req.user.friendRequests[i].to.toString() === req.user.id;
 
-			if (sentRequest) {
+				if (sentRequest) {
 				res.json({
 					message: "You already sent a friend request to this user"
 				});
@@ -63,6 +72,33 @@ exports.is_not_same_or_friend = function (req, res, next) {
 	}
 };
 
+exports.request_missing = function (req, res, next) {
+
+	if (req.user.friendRequests.length > 0) {
+
+		for (let i = 0; i < req.user.friendRequests.length; i++) {
+
+			const receivedRequest =
+				req.user.friendRequests[i].from.toString() === req.params.userId &&
+				req.user.friendRequests[i].to.toString() === req.user.id;
+			
+			if (receivedRequest) {
+				next();
+				return;
+			} else {
+				res.json({
+					message: "You have not received a friend request from this user"
+				});
+				return;
+			}
+		}
+	} else {
+		res.json({
+			message: "You don't have friend requests"
+		});
+		return;
+	}
+};
 exports.show_friends = function(req, res, next) {
 	
 	User.findById(req.params.userId, function(err, user) {
@@ -82,11 +118,12 @@ exports.show_friends = function(req, res, next) {
 };
 
 exports.add_friend = function(req, res, next) {
+
 	const friendRequest = {
 		from: req.user._id,
 		to: req.params.userId
 	};
-	const userId =mongoose.Types.ObjectId(req.params.userId);
+	const userId = mongoose.Types.ObjectId(req.params.userId);
 	const ids = [req.user._id, userId]
 
 	User.updateMany({
@@ -99,15 +136,84 @@ exports.add_friend = function(req, res, next) {
 		}
 	}, function (err) { 
 		if(err) { return next(err)};
+		
 		res.json({
-			message: "Added friend"
+			message: "Friend request sent"
 		});
 		return;
 	});
 	
 };
 exports.handle_friend_request = function(req, res, next) {
+	// Check if action was sent
+	const action = req.body.action
+	const userId = mongoose.Types.ObjectId(req.params.userId);
+	const ids = [req.user._id, userId]
+	
+	const friendRequest = {
+		from: userId,
+		to: req.user._id
+	};
 
+	if(!action) {
+		res.json({
+			message: "Send action"
+		});
+		return;
+	} else if (action ==="confirm") {
+
+		async.parallel(
+			[
+				function(callback) {
+					
+					req.user.friends.push(userId);
+					req.user.save(function(err) {
+						if(err) { return next(err)};
+						callback(null);
+					});
+				},
+				function(callback) {
+					
+					User.findByIdAndUpdate(userId, {
+						$push: { 
+							friends: req.user._id
+						}
+					}, function (err) {
+						if(err) { return next(err)};
+						callback(null);
+					});
+
+				}
+			], function (err) {
+				if(err) { return next(err)};
+				
+				User.updateMany({
+					_id: { 
+						$in: ids
+					}
+				}, {
+					$pull: { 
+						friendRequests: friendRequest
+					}
+				}, function (err) { 
+					if(err) { return next(err)};
+					res.json({
+						message: "Added friend"
+					});
+					return;
+				});
+
+			}
+			);
+			
+		
+
+
+	} else if (action ==="reject") {
+		res.send('Rejected');
+	} else {
+		res.send('Invalid action')
+	}
 };
 
 exports.delete_friend = function(req, res, next) {
