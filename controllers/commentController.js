@@ -1,5 +1,4 @@
 const { body, validationResult } = require('express-validator');
-const async = require('async');
 
 const Post = require('../models/post');
 const Comment = require('../models/comment');
@@ -217,4 +216,5 @@ exports.delete_comment = function (req, res, next) {
 exports.like_comment = function (req, res, next) {
 	
 	like(req, res, next, Comment, req.params.commentId);
+	
 };
