@@ -1,6 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const User = require('../models/user');
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs")
 const passport = require("passport");
 require('../util/passport');
 
@@ -11,7 +12,7 @@ exports.register = (req, res, next) => {
 		if(err) { return next(err)};
 		
 		bcrypt.hash(req.body.password, salt, (err, hashedPassword) => {
-			if(err) { return next(err)};
+			if(err) {return next(err)};
 			//Successful, create new user and save it.
 			const user = new User({
 				username: req.body.username,
@@ -22,10 +23,24 @@ exports.register = (req, res, next) => {
 			});
 			user.save((err) => {
 				if (err) {
+				email = err.keyPattern?.email
+				username = err.keyPattern?.username
+				if(email) {
+					res.json({
+						message: 'Email already in use'
+					})
+					return;
+				} else if(username) {
+					res.json({
+						message: 'Username already in use'
+					});
+					return;
+				} else {
 					return next(err);
 				}
-				res.json({message: 'User registered successfully'});
-			});
+			}
+			res.json({message: 'User registered successfully'});
+		});
 		})
 	});
 };

@@ -8,11 +8,11 @@ const friendRequestSchema = new Schema({
 });
 
 const userSchema = new Schema({
-	username: { type: String, required: true, index: true },
+	username: { type: String, required: true, unique: true},
 	password: { type: String, required: true,  select: false },
 	fname: { type: String, required: true },
 	lname: { type: String, required: true },
-	email: { type: String, required: true, match: /.+\@..+/},
+	email: { type: String, required: true, unique: true, match: /.+\@..+/},
 	picture: { type: String, default: 'default.png'},
 	posts: [ { type: Schema.Types.ObjectId, ref: 'Post'} ],
 	friends: [ { type: Schema.Types.ObjectId, ref: 'User'} ],
