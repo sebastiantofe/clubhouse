@@ -13,6 +13,6 @@ router.post('/', [friendController.is_not_same_or_friend, friendController.reque
 router.put('/', friendController.request_missing, friendController.handle_friend_request);
 
 // Delete route for deleting a friend from current user's list of friends
-router.delete('/', friendController.delete_friend);
+router.delete('/', friendController.is_not_same_and_is_friend , friendController.delete_friend);
 
 module.exports = router;

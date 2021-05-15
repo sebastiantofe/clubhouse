@@ -148,7 +148,7 @@ exports.handle_friend_request = function(req, res, next) {
 	// Check if action was sent
 	const action = req.body.action
 	const userId = mongoose.Types.ObjectId(req.params.userId);
-	const ids = [req.user._id, userId]
+	const ids = [req.user._id, userId];
 	
 	const friendRequest = {
 		from: userId,
@@ -160,12 +160,15 @@ exports.handle_friend_request = function(req, res, next) {
 			message: "Send action"
 		});
 		return;
+
+	 // Logic for accepting a friend request
 	} else if (action ==="confirm") {
 
 		async.parallel(
 			[
 				function(callback) {
-					
+
+					//Add user id to current user's friends array
 					req.user.friends.push(userId);
 					req.user.save(function(err) {
 						if(err) { return next(err)};
@@ -174,6 +177,7 @@ exports.handle_friend_request = function(req, res, next) {
 				},
 				function(callback) {
 					
+					//Add current user id to the other user's friends array
 					User.findByIdAndUpdate(userId, {
 						$push: { 
 							friends: req.user._id
@@ -205,17 +209,80 @@ exports.handle_friend_request = function(req, res, next) {
 
 			}
 			);
-			
 		
-
-
+	 // Logic for rejecting friend request
 	} else if (action ==="reject") {
-		res.send('Rejected');
+
+		User.updateMany({
+			_id: { 
+				$in: ids
+			}
+		}, {
+			$pull: { 
+				friendRequests: friendRequest
+			}
+		}, function (err) { 
+			if(err) { return next(err)};
+			res.json({
+				message: "You rejected this friend request"
+			});
+			return;
+		});
+
 	} else {
-		res.send('Invalid action')
+		res.json({
+			message: "Invalid action"
+		});
+		return;
 	}
+};
+
+exports.is_not_same_and_is_friend = function (req, res, next) {
+
+	// Check if current user is in its profile
+	const same = req.user.id === req.params.userId;
+
+	// Check if current user is already friend of profile user
+	const friends = req.user.friends.includes(req.params.userId);
+
+	if (same) {
+		res.json({
+			message: "You can not do this action",
+		});
+		return;
+
+	} else if (!friends) {
+		res.json({
+			message: "You are not friend of this person",
+		});
+		return;
+	} else {
+		next();
+		return
+	} 
 };
 
 exports.delete_friend = function(req, res, next) {
 
+	const userId = mongoose.Types.ObjectId(req.params.userId);
+	const ids = [req.user._id, userId];
+	
+	// Remove user ids from both user's friends list
+	User.updateMany({
+		_id: { 
+			$in: ids
+		}
+	}, {
+		$pull: { 
+			friends: {
+				$in: ids
+			}
+		}
+	}, function (err) { 
+		if(err) { return next(err)};
+		res.json({
+			message: "You removed this friend from your friends list"
+		});
+		return;
+	});
 };
