@@ -3,15 +3,6 @@ const router = express.Router();
 const indexController = require("../controllers/indexController");
 
 /* GET home page. */
-router.get("/feed", function (req, res, next) {
-	
-	if (req.user) {
-		// indexController.show_feed_get
-		res.render('home');
-	} else {
-		res.render("index", { title: "Clubhouse - your new favorite social network" });
-
-	};
-});
+router.get("/feed", indexController.show_feed);
 
 module.exports = router;

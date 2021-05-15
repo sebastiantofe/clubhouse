@@ -45,7 +45,7 @@ exports.is_not_same_or_friend = function (req, res, next) {
 };
 
 exports.request_exists = function (req, res, next) {
-	console.log('Add friend');
+
 	if (req.user.friendRequests.length > 0) {
 		for (let i = 0; i < req.user.friendRequests.length; i++) {
 			const sentRequest =
