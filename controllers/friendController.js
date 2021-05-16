@@ -49,32 +49,40 @@ exports.request_exists = function (req, res, next) {
 	if (req.user.friendRequests.length > 0) {
 		for (let i = 0; i < req.user.friendRequests.length; i++) {
 
+			console.log(req.user.friendRequests[i].from.toString())
+			console.log(req.user.id)
+			console.log(req.user.friendRequests[i].to.toString())
+			console.log(req.params.userId)
 			const sentRequest =
 			req.user.friendRequests[i].from.toString() === req.user.id &&
 			req.user.friendRequests[i].to.toString() === req.params.userId;
 			const receivedRequest =
-				req.user.friendRequests[i].from.toString() === req.params.userId &&
-				req.user.friendRequests[i].to.toString() === req.user.id;
-				
-				console.log(sentRequest, receivedRequest);
-				if (sentRequest) {
-					res.json({
-						message: "You already sent a friend request to this user"
-					});
-					return;
-				} else if (receivedRequest) {
-					res.json({
-						message: "You already received a friend request from this user"
-					});
-					return;
-				} else {
-					next();
-				}
+			req.user.friendRequests[i].from.toString() === req.params.userId &&
+			req.user.friendRequests[i].to.toString() === req.user.id;
+			
+			console.log(sentRequest, receivedRequest);
+			if (sentRequest) {
+				res.json({
+					message: "You already sent a friend request to this user"
+				});
+				return;
+			} else if (receivedRequest) {
+				res.json({
+					message: "You already received a friend request from this user"
+				});
+				return;
 			}
+			
+		}
+		
+		next();
+		return;
+		
+
 		} else {
 			next();
-	}
-};
+		}
+	};
 
 exports.request_missing = function (req, res, next) {
 
@@ -122,7 +130,6 @@ exports.show_friends = function(req, res, next) {
 };
 
 exports.add_friend = function(req, res, next) {
-	console.log('done');
 
 	const friendRequest = {
 		from: req.user._id,

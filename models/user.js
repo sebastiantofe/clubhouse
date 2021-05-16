@@ -49,7 +49,7 @@ userSchema.methods.comparePassword = function (pass, cb) {
     });
 };
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('remove', async function(next) {
 	// --author post or --comment, --location post, --friends, --friendRequests, remove from groups
 	let currentUser = this;
 	
@@ -231,22 +231,6 @@ userSchema.pre('save', async function(next) {
 		return;
 	});
 	
-/* 
-
-	if(!currentUser.posts.length > 0) {
-		return next();
-	} else {
-		
-		for(let i = 0; i < currentUser.posts.length; i++) {
-			
-			await Post.findById(currentUser.posts[i], async function(err, post) {
-				if(err) { return next(err)};
-				
-				await post.remove();
-			});
-		};
-		return next();
-	}; */
 });
 
 User = mongoose.model('User', userSchema);

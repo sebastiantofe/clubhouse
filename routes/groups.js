@@ -5,34 +5,22 @@ const postsRouter = require('./posts');
 const groupController = require('../controllers/groupController');
 
 
-
-// GET request for creating a Group. NOTE This must come before routes that display groups (uses id).
-router.get('/create', groupController.group_create_get);
+// GET request for list of all groups.
+router.get('/', groupController.group_list);
 
 // POST request for creating group.
-router.post('/create', groupController.group_create_post);
+router.post('/', groupController.create_group);
 
-//Use router for posts
-router.use('/:groupId/posts', postsRouter);
+// PUT request to update group info.
+router.put('/:groupId', groupController.update_group);
 
-
-// GET request to delete group.
-router.get('/:groupId/delete', groupController.group_delete_get);
-
-// POST request to delete group.
-router.post('/:groupId/delete', groupController.group_delete_post);
-
-// GET request to update group.
-router.get('/:groupId/update', groupController.group_update_get);
-
-// POST request to update group.
-router.post('/:groupId/update', groupController.group_update_post);
+// DELETE request to delete group.
+router.delete('/:groupId', groupController.delete_group);
 
 // GET request for one group.
 router.get('/:groupId', groupController.group_page);
 
-// GET request for list of all group items.
-router.get('/', groupController.group_list);
-
+//Use router for posts
+router.use('/:groupId/posts', postsRouter);
 
 module.exports = router;

@@ -5,27 +5,16 @@ const User = require('../models/user');
 const Post = require('../models/post');
 
 
-exports.group_create_get = function(req, res, next) {
+exports.create_group = function(req, res, next) {
 
 };
 
-exports.group_create_post = function(req, res, next) {
+exports.update_group = function(req, res, next) {
 
 };
 
-exports.group_update_get = function(req, res, next) {
 
-};
-
-exports.group_update_post = function(req, res, next) {
-
-};
-
-exports.group_delete_get = function(req, res, next) {
-
-};
-
-exports.group_delete_post = function(req, res, next) {
+exports.delete_group = function(req, res, next) {
 
 };
 

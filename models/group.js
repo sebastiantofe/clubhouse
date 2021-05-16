@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
+const Post = require('./post');
 
 const ACTIONS = {
 	delete_comment: "delete_comment",
@@ -40,5 +41,22 @@ groupSchema
 	return '/posts/' + this._id
 });
 
+groupSchema.pre('remove', async function(next) {
+	
+	if(!this.posts.length > 0) {
+		return next();
+	} else {
+		
+		for(let i = 0; i < this.posts.length; i++) {
+			
+			await Post.findById(this.posts[i], async function(err, post) {
+				if(err) { return next(err)};
+				
+				await post.remove();
+			});
+		};
+		return next();
+	};
+});
 
 module.exports = mongoose.model('Group', groupSchema);

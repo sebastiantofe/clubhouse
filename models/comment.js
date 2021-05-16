@@ -36,7 +36,7 @@ commentSchema
 });
 
 
-commentSchema.pre('remove', async function(next) {
+commentSchema.pre('remove', function(next) {
 	
 	if(!this.comments.length > 0) {
 		return next();
@@ -44,10 +44,10 @@ commentSchema.pre('remove', async function(next) {
 
 		for(let i = 0; i < this.comments.length; i++) {
 			
-			await Comment.findById(this.comments[i], async function(err, comment) {
+			Comment.findById(this.comments[i], async function(err, comment) {
 				if(err) { return next(err)};
 				
-				await comment.remove();
+				comment.remove();
 			});
 		};
 		return next();
