@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { format } = require('date-fns');
 const Comment = require('./comment');
+const User = require('./user');
+const Group = require('./group');
 
 const postSchema= new Schema({
 	author: { type: Schema.Types.ObjectId, ref: 'User', required: true, autopopulate: true},
@@ -54,18 +56,36 @@ postSchema
 
 postSchema.plugin(require('mongoose-autopopulate'));
 
-postSchema.pre('remove', async function(next) {
+postSchema.pre('remove', function(next) {
+
+	function removePostId(Model, id) {
+
+
+		//Remove post id from User/Group posts array
+		Model.findByIdAndUpdate(id, {
+			$pull: {
+				posts: this._id
+			}
+		}, function(err) {
+			if(err) { return next(err)};
+		});
+
+	}
+
+	const Model = this.onModel === 'User' ? User : Group;
 	
+	removePostId(Model, this.location)
+		
 	if(!this.comments.length > 0) {
 		return next();
 	} else {
 		
 		for(let i = 0; i < this.comments.length; i++) {
 			
-			await Comment.findById(this.comments[i], async function(err, comment) {
+			Comment.findById(this.comments[i], function(err, comment) {
 				if(err) { return next(err)};
 				
-				await comment.remove();
+				comment.remove();
 			});
 		};
 		return next();
